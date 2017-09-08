@@ -1,0 +1,99 @@
+{% extends "layouts/layout1.html" %}
+{% block title %}
+The Search
+{% endblock %}
+{% block content %}
+    <div class="container">
+      <h1>Activities Information</h1>
+      <br>
+     <table id="table" class="table table-hover table-mc-light-blue">
+     <thead>
+        <tr>
+          <th onclick="sortTable(0)">Activity</th>
+          <th onclick="sortTable(1)">Type</th>
+          <th onclick="sortTable(2)">Reference</th>
+        <!--
+          <th onclick="sortTable(3)">Start Date</th>
+          <th onclick="sortTable(4)">End Date</th>
+          -->
+          <th onclick="sortTable(5)">Total Hours</th>
+          <th></th>
+          <th></th>
+        </tr>
+        <form action="{{ url_for('activities') }}" method="post" onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
+        <tr>
+         <th><input type="text" placeholder="Activity" name="activity" value="{{ request.form.activity }}"></th>
+         <th>
+          <select name='type'>Activity Type
+          <option value=''>Type</option>
+          <option value='artistic endeavors'>artistic endeavors</option>
+          <option value='community service/volunteer – medical/clinical'>community service/volunteer – medical/clinical</option>
+          <option value='community service/volunteer – not medical/clinical'>community service/volunteer – not medical/clinical</option>
+          <option value='conferences attended'>conferences attended</option>
+          <option value='extracurricular activities'>extracurricular activities</option>
+          <option value='hobbies'>hobbies</option>
+          <option value='honors/awards/recognition'>honors/awards/recognition</option>
+          <option value='honors/awards/recognition'>honors/awards/recognition</option>
+          <option value='intercollegiate athletics'>intercollegiate athletics</option>
+          <option value='leadership – not listed elsewhere'>leadership – not listed elsewhere</option>
+          <option value='military service'>military service</option>
+          <option value='other'>other</option>
+          <option value='paid employment – medical/clinical'>paid employment – medical/clinical</option>
+          <option value='paid employment – not medical/clinical'>paid employment – not medical/clinical</option>
+          <option value='physician shadowing/clinical observation'>physician shadowing/clinical observation</option>
+          <option value='presentations/posters'>presentations/posters</option>
+          <option value='publications'>publications</option>
+          <option value='research/lab'>research/lab</option>
+          <option value='teaching/tutoring/teaching assistant'>teaching/tutoring/teaching assistant</option>
+          </select>
+         </th>
+         <th><input type="text" placeholder="Reference" name="reference" value="{{ request.form.reference }}"></th>
+         <!--
+         <th> <input type="date" placeholder="Start Date" name="startdate" value="{{ request.form.startdate }}"></th>
+         <th><input type="date" placeholder="End Date" name="enddate" value="{{ request.form.enddate }}"></th>
+         -->
+         <th><input type="text" placeholder="Hours" name="hours" value="{{ request.form.hours }}"></th>
+         <th><button type="submit" value="Submit">Submit</button></th>
+         <th></th>
+        </tr>
+      </form>
+      </thead>
+        {% for r in result %}
+          <tr>
+            <td>
+                {{r.activity}}
+            </td>
+            <td>
+                {{r.type}}
+            </td>
+            <td>
+                {{r.reference}}
+            </td>
+            <!--
+            <td>
+                {{r.startdate}}
+            </td>
+            <td>
+                {{r.enddate}}
+            </td>
+            -->
+            <td>
+                {{r.hours}}
+            </td>
+            <td>
+            <form action="{{ url_for('activitiesdetails') }}" method="post" >
+            <button class="btn btn-success" type="submit" name="activitiesdetails" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-pencil"></span></button>
+            </form>
+            </td>
+            <td>
+            <form action="{{ url_for('deleteactivities') }}" method="post" >
+            <button class="btn btn-danger" type="submit" name="activitiesdelete" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+            </td>
+          </tr>
+        {% endfor %}
+    </table>
+    </div>
+{% endblock %}

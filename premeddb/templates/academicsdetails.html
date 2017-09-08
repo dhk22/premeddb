@@ -1,0 +1,63 @@
+{% extends "layouts/layout1.html" %}
+{% block title %}
+The Search
+{% endblock %}
+{% block content %}
+    <div class="container">
+      <h1>Medical School Details</h1>
+     <table id="table" class="table table-hover table-mc-light-blue">
+        <form action="{{ url_for('academicsdetailsprocess')}}" method="POST">
+        <tr>
+            <th>Medical School</th>
+            <td>{{result.university}}</td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td>
+            {{result.name}}
+            </td>
+         </tr>
+         <tr>
+            <th>Email</th>
+            <td>
+            <input type="text" placeholder="Email" name="email" value="{{result.email}}">
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>
+            <select name='type'>
+              <option value='{{result.type}}'>{{result.type}}</option>
+              <option value='Science - Academic'>Science - Academic</option>
+              <option value='Humanities - Academic'>Humanities - Academic</option>
+              <option value='Research'>Research</option>
+              <option value='Volunteering'>Volunteering</option>
+              <option value='Leadership'>Leadership</option>
+            </select>
+            </td>
+         </tr>
+         <tr>
+            <th>Status</th>
+         <td>
+            <select name='status'>
+              <option value = '{{result.status}}'>{{result.status}}</option>
+              <option value='Requested'>Requested</option>
+              <option value='Materials Sent'>Materials Sent</option>
+              <option value='Letter Submitted'>Letter Submitted</option>
+              <option value='Thank You Letter Sent'>Thank You Letter Sent</option>
+            </select>
+            </td>
+        </tr>
+        <tr>
+            <th></th>
+            <td>
+                <button type="submit" name="update" value="{{ result.id }}">Submit</button>
+                </form>
+                <a href="{{ url_for('academics') }}" style="color: #fb3f00; text-decoration: none;">
+                    <button>Cancel</button>
+                </a>
+            </td>
+        </tr>
+     </table>
+    </div>
+{% endblock %}

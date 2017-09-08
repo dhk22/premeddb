@@ -1,0 +1,168 @@
+{% extends "layouts/layout1.html" %}
+{% block title %}
+The Search
+{% endblock %}
+{% block content %}
+    <div class="container">
+      <h1>Academics</h1>
+      <br>
+
+
+    <h2>GPA</h2>
+     <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>Overall GPA</th>
+          <th>Science GPA</th>
+          <th></th>
+        </tr>
+        <tr>
+        <form action="{{ url_for('academics') }}" method="post" onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
+        <th><input type="text" placeholder="Overall GPA" name="ogpa" value="{{grades.ogpa}}"></th>
+        <th><input type="text" placeholder="Science GPA" name="sgpa" value="{{grades.sgpa}}"></th>
+        <th><button type="submit" value="Submit">Submit</button></th>
+        </form>
+        </tr>
+      </thead>
+        {% for r in grades %}
+          <tr>
+            <td>
+                {{r.ogpa}}
+            </td>
+            <td>
+                {{r.sgpa}}
+            </td>
+            <td>
+            <form action="{{ url_for('deletegrades') }}" method="post" >
+            <button class="btn btn-danger" type="submit" name="gradesdelete" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+            </td>
+          </tr>
+        {% endfor %}
+     </table>
+
+    <h2>MCAT</h2>
+     <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>Exam Date</th>
+          <th>Overall</th>
+          <th>C/P</th>
+          <th>CARS</th>
+          <th>B/B</th>
+          <th>P/S</th>
+          <th></th>
+        </tr>
+        <tr>
+        <form action="{{ url_for('mcat') }}" method="post" onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
+        <th><input type="date" placeholder="Exam Date" name="examdate" value="{{ request.form.examdate }}"></th>
+        <th><input type="text" placeholder="Overall" name="overall" value="{{ request.form.overall }}" style="width: 100px;"></th>
+        <th><input type="text" placeholder="C/P" name="cp" value="{{ request.form.cp }}" style="width: 100px;"></th>
+        <th><input type="text" placeholder="CARS" name="cars" value="{{ request.form.cars }}" style="width: 100px;"></th>
+        <th><input type="text" placeholder="B/B" name="bb" value="{{ request.form.bb }}" style="width: 100px;"></th>
+        <th><input type="text" placeholder="P/S" name="ps" value="{{ request.form.ps }}" style="width: 100px;"></th>
+        <th><button type="submit" value="Submit">Submit</button></th>
+        </form>
+        </tr>
+      </thead>
+        {% for r in result %}
+          <tr>
+            <td>
+                {{r.examdate}}
+            </td>
+            <td>
+                {{r.overall}}
+            </td>
+            <td>
+                {{r.cp}}
+            </td>
+            <td>
+                {{r.cars}}
+            </td>
+            <td>
+                {{r.bb}}
+            </td>
+            <td>
+                {{r.ps}}
+            </td>
+            <td>
+            <form action="{{ url_for('deletemcat') }}" method="post" >
+            <button class="btn btn-danger" type="submit" name="mcatdelete" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+            </td>
+          </tr>
+        {% endfor %}
+     </table>
+
+     <h2>References</h2>
+     <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th></th>
+          <th></th>
+        </tr>
+        <tr>
+        <form action="{{ url_for('references') }}" method="post" onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
+        <th><input type="text" placeholder="Name" name="name" value="{{ request.form.name }}"></th>
+        <th><input type="text" placeholder="Email" name="email" value="{{ request.form.email }}"></th>
+        <th>
+          <select name='type'>Reference Type
+          <option value=''>Type</option>
+          <option value='Science - Academic'>Science - Academic</option>
+          <option value='Humanities - Academic'>Humanities - Academic</option>
+          <option value='Research'>Research</option>
+          <option value='Volunteering'>Volunteering</option>
+          <option value='Leadership'>Leadership</option>
+          </select>
+        </th>
+        <th>
+          <select name='status'>Status
+          <option value=''>Status</option>
+          <option value='Requested'>Requested</option>
+          <option value='Materials Sent'>Materials Sent</option>
+          <option value='Letter Submitted'>Letter Submitted</option>
+          <option value='Thank You Letter Sent'>Thank You Letter Sent</option>
+          </select>
+        </th>
+        <th><button type="submit" value="Submit">Submit</button></th>
+        <th></th>
+        </form>
+        </tr>
+      </thead>
+        {% for r in result1 %}
+          <tr>
+            <td>
+                {{r.name}}
+            </td>
+            <td>
+                {{r.email}}
+            </td>
+            <td>
+                {{r.type}}
+            </td>
+            <td>
+                {{r.status}}
+            </td>
+            <td>
+            <form action="{{ url_for('academicsdetails') }}" method="post" >
+            <button class="btn btn-success" type="submit" name="academicsdetails" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-pencil"></span></button>
+            </form>
+            </td>
+            <td>
+            <form action="{{ url_for('deletereferences') }}" method="post" >
+            <button class="btn btn-danger" type="submit" name="referencesdelete" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+            </td>
+          </tr>
+        {% endfor %}
+    </table>
+    </div>
+{% endblock %}

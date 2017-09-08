@@ -1,0 +1,147 @@
+{% extends "layouts/layout1.html" %}
+{% block title %}
+The Search
+{% endblock %}
+{% block content %}
+    <div class="container">
+      <h1>Status Tracker</h1>
+      <br>
+
+     <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th onclick="sortTable(1)">Medical School</th>
+          <th>Primary</th>
+          <th>Secondary</th>
+          <th>Interview</th>
+          <th>Offer</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+        <tr>
+          <form action="/status" method="POST" onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
+          <th><input type="text" placeholder="University" name="university" value="{{ request.form.university }}"></th>
+          <th>
+          <select name='primary'>
+              <option value='Not Submitted'>Not Submitted</option>
+              <option value='Submitted'>Submitted</option>
+          </select>
+          </th>
+          <th>
+          <select name='secondary'>
+              <option value='N/A'>N/A</option>
+              <option value='Received'>Received</option>
+              <option value='Submitted'>Submitted</option>
+          </select>
+          </th>
+          <th>
+          <select name='interview'>
+              <option value='N/A'>N/A</option>
+              <option value='Received'>Received</option>
+              <option value='Booked'>Booked</option>
+          </select>
+          </th>
+          <th>
+          <select name='offer'>
+              <option value='N/A'>N/A</option>
+              <option value='Yes'>Yes</option>
+              <option value='No'>No</option>
+          </select>
+          </th>
+          <th><button type="submit" value="Submit">Submit</button></th>
+          </form>
+        </tr>
+        {% for r in result %}
+          <tr>
+            <td>
+                {{r.university}}
+            </td>
+            <td>
+                {{r.primary}}
+            </td>
+            <td>
+                {{r.secondary}}
+            </td>
+            <td>
+                {{r.interview}}
+            </td>
+              <td>
+                {{r.offer}}
+            </td>
+            <td>
+            <form action="{{ url_for('statusdetails') }}" method="post" >
+            <button class="btn btn-success" type="submit" name="statusdetails" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-pencil"></span></button>
+            </form>
+            </td>
+            <td>
+            <form action="{{ url_for('deletestatus') }}" method="post" >
+            <button class="btn btn-danger" type="submit" name="statusdelete" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+            </td>
+          </tr>
+        {% endfor %}
+    </table>
+
+<!--Allows organizing by clicking on headings-->
+
+<script>
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("table");
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc";
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.getElementsByTagName("TR");
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 2; i < (rows.length - 1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+</script>
+</div>
+{% endblock %}
