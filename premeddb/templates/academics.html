@@ -20,7 +20,7 @@ The Search
         <form action="{{ url_for('academics') }}" method="post" onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
         <th><input type="text" placeholder="Overall GPA" name="ogpa" value="{{grades.ogpa}}"></th>
         <th><input type="text" placeholder="Science GPA" name="sgpa" value="{{grades.sgpa}}"></th>
-        <th><button type="submit" value="Submit">Submit</button></th>
+        <th><button class="btn btn-primary" type="submit" value="Submit"><span class="glyphicon glyphicon-plus"></span></button></th>
         </form>
         </tr>
       </thead>
@@ -62,8 +62,7 @@ The Search
         <th><input type="text" placeholder="CARS" name="cars" value="{{ request.form.cars }}" style="width: 100px;"></th>
         <th><input type="text" placeholder="B/B" name="bb" value="{{ request.form.bb }}" style="width: 100px;"></th>
         <th><input type="text" placeholder="P/S" name="ps" value="{{ request.form.ps }}" style="width: 100px;"></th>
-        <th><button type="submit" value="Submit">Submit</button></th>
-        </form>
+        <th><button class="btn btn-primary" type="submit" value="Submit"><span class="glyphicon glyphicon-plus"></span></button></th>        </form>
         </tr>
       </thead>
         {% for r in result %}
@@ -130,7 +129,7 @@ The Search
           <option value='Thank You Letter Sent'>Thank You Letter Sent</option>
           </select>
         </th>
-        <th><button type="submit" value="Submit">Submit</button></th>
+        <th><button class="btn btn-primary" type="submit" value="Submit"><span class="glyphicon glyphicon-plus"></span></button></th>
         <th></th>
         </form>
         </tr>

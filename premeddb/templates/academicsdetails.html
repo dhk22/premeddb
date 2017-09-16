@@ -51,10 +51,10 @@ The Search
         <tr>
             <th></th>
             <td>
-                <button type="submit" name="update" value="{{ result.id }}">Submit</button>
+                <button class="btn btn-primary" type="submit" name="update" value="{{ result.id }}"><span class="glyphicon glyphicon-ok"></span></button>
                 </form>
                 <a href="{{ url_for('academics') }}" style="color: #fb3f00; text-decoration: none;">
-                    <button>Cancel</button>
+                    <button class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
                 </a>
             </td>
         </tr>

@@ -56,7 +56,7 @@ The Search
                  <a href="{{r.schedule}}" download>Download</a>
             </td>
             <td>
-            <form action="/deletescheduler" method="post">
+            <form action="{{ url_for('deletescheduler') }}" method="post">
             <button class="btn btn-danger" type="submit" name="schedulerdelete" value="{{ r.id }}">
             <span class="glyphicon glyphicon-trash"></span></button>
             </form>

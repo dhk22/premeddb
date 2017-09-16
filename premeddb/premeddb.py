@@ -109,6 +109,7 @@ def activities():
             signature = Activities(activity=activity, type=type, reference=reference, hours=hours)
             db.session.add(signature)
             db.session.commit()
+            result = Activities.query.all()
     return render_template("activities.html", result=result)
 
 
@@ -206,7 +207,6 @@ def statusdetailsword():
     table = document.add_table(rows=1, cols=3)
     hdr_cells = table.rows[0].cells
     hdr_cells[0].text = 'Essays'
-    print(edit.essay1p)
     f = BytesIO()
     document.save(f)
     length = f.tell()

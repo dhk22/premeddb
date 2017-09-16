@@ -17,6 +17,7 @@ The Search
           <th>Offer</th>
           <th></th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
         <tr>
@@ -49,7 +50,8 @@ The Search
               <option value='No'>No</option>
           </select>
           </th>
-          <th><button type="submit" value="Submit">Submit</button></th>
+          <th><button class="btn btn-primary" type="submit" value="Submit"><span class="glyphicon glyphicon-plus"></span></button></th>
+          <th></th>
           </form>
         </tr>
         {% for r in result %}
@@ -73,6 +75,12 @@ The Search
             <form action="{{ url_for('statusdetails') }}" method="post" >
             <button class="btn btn-success" type="submit" name="statusdetails" value="{{ r.id }}">
             <span class="glyphicon glyphicon-pencil"></span></button>
+            </form>
+            </td>
+            <td>
+            <form action="{{ url_for('statusdetailsword')}}" method="post" >
+            <button class="btn btn-info" type="submit" name="word" value="{{ r.id }}">
+            <span class="glyphicon glyphicon-print"></span></button>
             </form>
             </td>
             <td>

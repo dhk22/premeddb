@@ -15,14 +15,23 @@ The Search
 <p>Title: {{ result.title }}</p>
 <p><strong>Personal Statement:</strong> Use the space provided to explain why you want to go to medical school. (Limit: 5300 Characters)</p>
 <!-- Counts Characters-->
+
 <form action="{{ url_for('personalstatementdetailsprocess')}}" method="POST">
 <textarea id="essay" rows="4" cols="100" name="essay">{{result.essay}}</textarea>
 <div id="result"></div>
-<button type="submit" name="update" value="{{ result.id }}">Submit</button>
+<table>
+<tr>
+<th>
+<button  class="btn btn-primary" type="submit" name="update" value="{{ result.id }}"><span class="glyphicon glyphicon-ok"></span></button>
 </form>
+</th>
+<th>
 <a href="{{ url_for('personalstatement') }}" style="color: #fb3f00; text-decoration: none;">
-    <button>Cancel</button>
+    <button class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
 </a>
+</th>
+</tr>
+</table>
 <script>
 function wordCount( val ){
     var wom = val.match(/\S+/g);
@@ -35,7 +44,7 @@ function wordCount( val ){
 }
 
 
-var textarea = document.getElementById("text");
+var textarea = document.getElementById("essay");
 var result   = document.getElementById("result");
 
 textarea.addEventListener("input", function(){

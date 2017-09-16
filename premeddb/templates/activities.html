@@ -20,7 +20,7 @@ The Search
           <th></th>
           <th></th>
         </tr>
-        <form action="{{ url_for('activities') }}" method="post" onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
+        <form action="{{ url_for('activities') }}" method="post">
         <tr>
          <th><input type="text" placeholder="Activity" name="activity" value="{{ request.form.activity }}"></th>
          <th>
@@ -53,7 +53,7 @@ The Search
          <th><input type="date" placeholder="End Date" name="enddate" value="{{ request.form.enddate }}"></th>
          -->
          <th><input type="text" placeholder="Hours" name="hours" value="{{ request.form.hours }}"></th>
-         <th><button type="submit" value="Submit">Submit</button></th>
+         <th><button class="btn btn-primary" type="submit" value="Submit"><span class="glyphicon glyphicon-plus"></span></button></th>
          <th></th>
         </tr>
       </form>
