@@ -1,25 +1,91 @@
 from flask import Flask
+from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask import render_template, request, redirect, url_for, send_file # imports rendering functions
 from docx import Document
 from io import BytesIO
-
-from docx.shared import Inches
-
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField
+from wtforms.validators import InputRequired, Email, Length
+from models import *
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+#from flask-admin import Admin
+#from flask_admin.contrib.sqla import ModelView
 
 # Flask app defined
 app = Flask(__name__)
 
+# Establishes secret key
+app.config['SECRET_KEY'] = 'thisisasecret'
+Bootstrap(app)
 
 # Links to database which is created in config.py
 app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
-from models import *
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+# Creates class for login form w/ username and password
+class LoginForm(FlaskForm):
+    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
+    remember = BooleanField('remember me')
+
+
+# Creates class for registration form w/ username, email, and password
+class RegisterForm(FlaskForm):
+    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
+    email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
+
 
 @app.route('/')
 def index():
     return render_template("index.html")
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                return redirect(url_for('dashboard'))
+
+            return "<h1>Username or password is not valid</h1>"
+
+    return render_template("login.html", form=form)
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        return '<h1> New user has been created </h1>'
+
+    return render_template("signup.html", form=form)
+
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template("dashboard.html", name=current_user.username)
 
 
 @app.route('/scheduler', methods=['GET', 'POST'])
@@ -173,6 +239,7 @@ def statusdetailsprocess():
     edit.essay5a = request.form['essay5a']
     db.session.commit()
     return redirect(url_for('status'))
+
 
 @app.route('/statusdetailsword', methods=['POST', 'GET'])
 def statusdetailsword():

@@ -1,12 +1,21 @@
 from premeddb import db
+from flask_login import UserMixin
 
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(15), unique=True)
+    email = db.Column(db.String(50), unique=True)
+    password = db.Column(db.String(80))
+    admin = db.Column(db.String(1))
+    schedulers = db.relationship('Scheduler', backref='user', lazy='dynamic')
 
 class Scheduler(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     schedulename = db.Column(db.String(50))
     schedule = db.Column(db.String(200))
     data = db.Column(db.LargeBinary)
-
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class Grades(db.Model):
     id = db.Column(db.Integer, primary_key=True)
