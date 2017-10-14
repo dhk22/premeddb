@@ -7,11 +7,11 @@ from io import BytesIO
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
-from models import *
+#from models import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-#from flask-admin import Admin
-#from flask_admin.contrib.sqla import ModelView
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 # Flask app defined
 app = Flask(__name__)
@@ -23,9 +23,118 @@ Bootstrap(app)
 # Links to database which is created in config.py
 app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
+admin = Admin(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+
+#models
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(15), unique=True)
+    email = db.Column(db.String(50), unique=True)
+    password = db.Column(db.String(80))
+    admin = db.Column(db.String(1))
+    scheduler = db.relationship('Scheduler', backref='student', lazy='dynamic')
+    mcat = db.relationship('Mcat', backref='student', lazy='dynamic')
+    grades = db.relationship('Grades', backref='student', lazy = 'dynamic')
+    references = db.relationship('References', backref='student', lazy='dynamic')
+    activities = db.relationship('Activities', backref='student', lazy='dynamic')
+    status = db.relationship('Status', backref='student', lazy='dynamic')
+    personal = db.relationship('Personal', backref='student', lazy='dynamic')
+
+    def __repr__(self):
+        return (self.username)
+
+
+class Scheduler(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    schedulename = db.Column(db.String(50))
+    schedule = db.Column(db.String(200))
+    data = db.Column(db.LargeBinary)
+
+
+class Grades(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    ogpa = db.Column(db.String(5))
+    sgpa = db.Column(db.String(5))
+
+    def __repr__(self):
+        return 'User %r' % (self.userid)
+
+
+class Mcat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    examdate = db.Column(db.String(15))
+    overall = db.Column(db.String(5))
+    cp = db.Column(db.String(5))
+    cars = db.Column(db.String(5))
+    bb = db.Column(db.String(5))
+    ps = db.Column(db.String(5))
+
+    def __repr__(self):
+        return 'User %r' % (self.userid)
+
+
+class References(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    name = db.Column(db.String(50))
+    email = db.Column(db.String(50))
+    type = db.Column(db.String(50))
+    status = db.Column(db.String(500))
+
+
+class Activities(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    activity = db.Column(db.String(50))
+    type = db.Column(db.String(50))
+    hours = db.Column(db.String(50))
+    reference = db.Column(db.String(50))
+    startdate = db.Column(db.String(50))
+    enddate = db.Column(db.String(50))
+    description = db.Column(db.String(10000))
+
+
+class Status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    university = db.Column(db.String(50))
+    primary = db.Column(db.String(50))
+    secondary = db.Column(db.String(50))
+    interview = db.Column(db.String(50))
+    offer = db.Column(db.String(50))
+    essay1p = db.Column(db.String(500))
+    essay1a = db.Column(db.String(10000))
+    essay2p = db.Column(db.String(500))
+    essay2a = db.Column(db.String(10000))
+    essay3p = db.Column(db.String(500))
+    essay3a = db.Column(db.String(10000))
+    essay4p = db.Column(db.String(500))
+    essay4a = db.Column(db.String(10000))
+    essay5p = db.Column(db.String(500))
+    essay5a = db.Column(db.String(10000))
+
+
+class Personal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    title = db.Column(db.String(50))
+    essay = db.Column(db.String(10000))
+
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Scheduler, db.session))
+admin.add_view(ModelView(Grades, db.session))
+admin.add_view(ModelView(Mcat, db.session))
+admin.add_view(ModelView(References, db.session))
+admin.add_view(ModelView(Activities, db.session))
+admin.add_view(ModelView(Status, db.session))
+admin.add_view(ModelView(Personal, db.session))
 
 
 @login_manager.user_loader
@@ -68,6 +177,13 @@ def login():
     return render_template("login.html", form=form)
 
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = RegisterForm()
@@ -77,7 +193,7 @@ def signup():
         new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        return '<h1> New user has been created </h1>'
+        return render_template("newuser.html", form=form)
 
     return render_template("signup.html", form=form)
 
@@ -89,29 +205,31 @@ def dashboard():
 
 
 @app.route('/scheduler', methods=['GET', 'POST'])
+@login_required
 def scheduler():
-    result = Scheduler.query.all()
+    result = Scheduler.query.filter_by(userid=current_user.id).all()
     if request.method == 'POST':
         if int(Scheduler.query.count()) < 6:
             file = request.files['inputfile']
             schedulename = request.form['schedulename']
             data = file.read()
-            signature = Scheduler(schedulename=schedulename,schedule=file.filename, data=data)
+            signature = Scheduler(userid=current_user.id, schedulename=schedulename,schedule=file.filename, data=data)
             db.session.add(signature)
             db.session.commit()
-            result = Scheduler.query.all()
+            result = Scheduler.query.filter_by(userid=current_user.id).all()
     return render_template("scheduler.html", result=result)
 
 
 @app.route('/academics', methods=['POST', 'GET'])
+@login_required
 def academics():
-    grades = Grades.query.all()
-    result = Mcat.query.all()
-    result1 = References.query.all()
+    grades = Grades.query.filter_by(userid=current_user.id).all()
+    result = Mcat.query.filter_by(userid=current_user.id).all()
+    result1 = References.query.filter_by(userid=current_user.id).all()
     if request.method == 'POST':
         ogpa = request.form['ogpa']
         sgpa = request.form['sgpa']
-        signature = Grades(ogpa=ogpa, sgpa=sgpa)
+        signature = Grades(userid=current_user.id, ogpa=ogpa, sgpa=sgpa)
         db.session.add(signature)
         db.session.commit()
     return render_template("academics.html", result=result, result1=result1, grades=grades)
@@ -143,7 +261,7 @@ def mcat():
             cars = request.form['cars']
             bb = request.form['bb']
             ps = request.form['ps']
-            signature = Mcat(examdate=examdate, overall=overall, cp=cp, cars=cars, bb=bb, ps=ps)
+            signature = Mcat(userid=current_user.id, examdate=examdate, overall=overall, cp=cp, cars=cars, bb=bb, ps=ps)
             db.session.add(signature)
             db.session.commit()
     return redirect(url_for('academics'))
@@ -157,25 +275,26 @@ def references():
             email = request.form['email']
             type = request.form['type']
             status = request.form['status']
-            signature = References(name=name, email=email, type=type, status=status)
+            signature = References(userid=current_user.id, name=name, email=email, type=type, status=status)
             db.session.add(signature)
             db.session.commit()
     return redirect(url_for('academics'))
 
 
 @app.route('/activities', methods=['POST', 'GET'])
+@login_required
 def activities():
-    result = Activities.query.all()
+    result = Activities.query.filter_by(userid=current_user.id).all()
     if request.method == 'POST':
         if request.form['activity'] != '':
             activity = request.form['activity']
             type = request.form['type']
             reference = request.form['reference']
             hours = request.form['hours']
-            signature = Activities(activity=activity, type=type, reference=reference, hours=hours)
+            signature = Activities(userid=current_user.id, activity=activity, type=type, reference=reference, hours=hours)
             db.session.add(signature)
             db.session.commit()
-            result = Activities.query.all()
+            result = Activities.query.filter_by(userid=current_user.id).all()
     return render_template("activities.html", result=result)
 
 
@@ -199,8 +318,9 @@ def activitiesdetailsprocess():
 
 
 @app.route('/status', methods=['POST', 'GET'])
+@login_required
 def status():
-    result = Status.query.all()
+    result = Status.query.filter_by(userid=current_user.id).all()
     if request.method == 'POST':
         if request.form['university'] != '':
             university = request.form['university']
@@ -208,7 +328,7 @@ def status():
             secondary = request.form['secondary']
             interview = request.form['interview']
             offer = request.form['offer']
-            signature = Status(university=university, primary=primary, secondary=secondary, interview=interview, offer=offer)
+            signature = Status(userid=current_user.id, university=university, primary=primary, secondary=secondary, interview=interview, offer=offer)
             db.session.add(signature)
             db.session.commit()
     return render_template("status.html", result=result)
@@ -282,15 +402,16 @@ def statusdetailsword():
 
 
 @app.route('/personalstatement', methods=['POST', 'GET'])
+@login_required
 def personalstatement():
-    result = Personal.query.all()
+    result = Personal.query.filter_by(userid=current_user.id).all()
     if request.method == 'POST':
         if request.form['title'] != '':
             title = request.form['title']
-            signature = Personal(title=title)
+            signature = Personal(userid=current_user.id, title=title)
             db.session.add(signature)
             db.session.commit()
-            result = Personal.query.all()
+            result = Personal.query.filter_by(userid=current_user.id).all()
     return render_template("personalstatement.html", result=result)
 
 
@@ -368,17 +489,88 @@ def deletepersonalstatement():
 
 # Makes Summary Word Doc
 @app.route('/summary')
+@login_required
 def summary():
+    activities = Activities.query.filter_by(userid=current_user.id).all()
+    grades = Grades.query.filter_by(userid=current_user.id).all()
+    mcat = Mcat.query.filter_by(userid=current_user.id).all()
+    references = References.query.filter_by(userid=current_user.id).all()
+    status = Status.query.filter_by(userid=current_user.id).all()
+
     document = Document()
-    document.add_heading("Sample Press Release", 0)
-    document.add_paragraph('Intense quote', style='IntenseQuote')
-    document.add_paragraph('first item in unordered list', style='ListBullet')
-    document.add_paragraph('first item in ordered list', style='ListNumber')
-    table = document.add_table(rows=1, cols=3)
+    document.add_heading("Summary", 0)
+    document.add_heading('GPA', 1)
+    table = document.add_table(rows=1, cols=2)
     hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'Qty'
-    hdr_cells[1].text = 'Id'
-    hdr_cells[2].text = 'Desc'
+    hdr_cells[0].text = 'Overall'
+    hdr_cells[1].text = 'Science'
+    for item in grades:
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(item.ogpa)
+        row_cells[1].text = str(item.sgpa)
+
+    document.add_heading('MCAT', 1)
+    table = document.add_table(rows=1, cols=6)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'Date'
+    hdr_cells[1].text = 'Overall'
+    hdr_cells[2].text = 'C/P'
+    hdr_cells[3].text = 'CARS'
+    hdr_cells[4].text = 'B/B'
+    hdr_cells[5].text = 'P/S'
+    for item in mcat:
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(item.examdate)
+        row_cells[1].text = str(item.overall)
+        row_cells[2].text = str(item.cp)
+        row_cells[3].text = str(item.cars)
+        row_cells[4].text = str(item.bb)
+        row_cells[5].text = str(item.ps)
+
+    document.add_heading('References', 1)
+    table = document.add_table(rows=1, cols=4)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'Name'
+    hdr_cells[1].text = 'Email'
+    hdr_cells[2].text = 'Type'
+    hdr_cells[3].text = 'Status'
+    for item in references:
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(item.name)
+        row_cells[1].text = str(item.email)
+        row_cells[2].text = str(item.type)
+        row_cells[3].text = str(item.status)
+
+    document.add_heading('Activities', 1)
+    table = document.add_table(rows=1, cols=4)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'Activity'
+    hdr_cells[1].text = 'Type'
+    hdr_cells[2].text = 'Reference'
+    hdr_cells[3].text = 'Hours'
+    for item in activities:
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(item.activity)
+        row_cells[1].text = str(item.type)
+        row_cells[2].text = str(item.reference)
+        row_cells[3].text = str(item.hours)
+
+    document.add_heading('Application Status', 1)
+    table = document.add_table(rows=1, cols=5)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'University'
+    hdr_cells[1].text = 'Primary'
+    hdr_cells[2].text = 'Secondary'
+    hdr_cells[3].text = 'Interview'
+    hdr_cells[4].text = 'Offer'
+    for item in status:
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(item.university)
+        row_cells[1].text = str(item.primary)
+        row_cells[2].text = str(item.secondary)
+        row_cells[3].text = str(item.interview)
+        row_cells[4].text = str(item.offer)
+
     f = BytesIO()
     document.save(f)
     length = f.tell()

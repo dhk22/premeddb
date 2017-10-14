@@ -1,5 +1,7 @@
 from premeddb import db
 from flask_login import UserMixin
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 
 class User(UserMixin, db.Model):
@@ -8,23 +10,26 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(80))
     admin = db.Column(db.String(1))
-    schedulers = db.relationship('Scheduler', backref='user', lazy='dynamic')
+
 
 class Scheduler(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
     schedulename = db.Column(db.String(50))
     schedule = db.Column(db.String(200))
     data = db.Column(db.LargeBinary)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
 
 class Grades(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
     ogpa = db.Column(db.String(5))
     sgpa = db.Column(db.String(5))
 
 
 class Mcat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
     examdate = db.Column(db.String(15))
     overall = db.Column(db.String(5))
     cp = db.Column(db.String(5))
@@ -35,6 +40,7 @@ class Mcat(db.Model):
 
 class References(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
     name = db.Column(db.String(50))
     email = db.Column(db.String(50))
     type = db.Column(db.String(50))
@@ -43,6 +49,7 @@ class References(db.Model):
 
 class Activities(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
     activity = db.Column(db.String(50))
     type = db.Column(db.String(50))
     hours = db.Column(db.String(50))
@@ -54,6 +61,7 @@ class Activities(db.Model):
 
 class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
     university = db.Column(db.String(50))
     primary = db.Column(db.String(50))
     secondary = db.Column(db.String(50))
@@ -73,5 +81,6 @@ class Status(db.Model):
 
 class Personal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
     title = db.Column(db.String(50))
     essay = db.Column(db.String(10000))
